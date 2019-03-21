@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8"/>
+    <title>Document</title>
+    <link rel="stylesheet" href="css//bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link href="css/styles.css" rel="stylesheet">
+    <script src="js/vue.js"></script>
+  </head>
+  <body>
+    <div class="sample">
+      <div v-timer:1000.5="onTimer">1</div>
+      <div v-timer:1000.5.run="onTimer">2</div>
+      <div v-timer:1000="onTimer">3</div>      
+    </div>
+  </body>
+  <script>
+   Vue.directive('timer', {
+     bind(el, options) {
+       let interval = options.arg;
+       let timer;
+       let max = Infinity;
+       let done = 0;
+       
+       for(let name in options.modifiers) {
+	 if(!isNaN(+name)){
+	   max = parseInt(name);
+	 }
+       }
+
+       let callback = () => {
+	 done++;
+	 options.value(el);
+	 
+	 if(done < max) {
+	   timer = setTimeout(() => {
+	     callback();
+	   }, interval);
+	 }
+       };
+
+       if(done < max) {
+	 if(options.modifiers.run) {
+	   callback();
+	 }
+	 else {
+	   timer = setTimeout(() => {
+	     callback();
+	   }, interval);
+	 }
+       }
+     }
+   });
+
+   new Vue({
+     el: '.sample',
+     methods: {
+       onTimer(el){
+	 let fontSize = getComputedStyle(el)['fontSize'];
+	 el.style.fontSize = parseInt(fontSize) + 10 + 'px';
+       }
+     }
+   })
+  </script>
+</html>
+
